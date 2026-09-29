@@ -23,19 +23,20 @@ names(Survival_HeightApril26Blocks7_6Clean)
 
 ```{r}
 Survival_HeightApril26Blocks7_6Clean <-
-  rename( Page_Num ="Page #",
+  Survival_HeightApril26Blocks7_6Clean %>% #assigned by use of <- but also needed to CALL it in order for R to understand where to rename. 
+  rename( Page_Num ="Page #", 
           Date = "MM/DD/YYYY",
           Recorder ="Name",
-         Block ="...4",
-         Tag_Num ="...5",
+         Block ="#...4",
+         Tag_Num ="#...5",
          Oak_Type ="NR, S, or A",
-         Treatment ="AC, OA, NP, DT, or DL"
-         OA_microclimate ="Th, TI, CN",
+         Treatment ="AC, OA, NP, DT, or DL",
+         OA_microclimate ="TH, TI, CN",
          Seedling_Ht_Cm ="(cm)",
          Num_Leaves ="#...10",
          Num_Dead_Leaves ="#...11",
          Leaf_Greenness ="%",
-         Num_Germinated ="#...13"
+         Num_Germinated ="#...13",
          RCD ="(mm)",
         Notes  ="as written on data sheet")
 Survival_HeightApril26Blocks7_6Clean
