@@ -13,7 +13,7 @@ Oak Exploratory Data Analysis and Cleaning
 ```{r}
 install.packages("tidyverse")
 library(tidyverse)
-
+#This code was gotten by clicking the files on the right and clicking import, the input can be edited and the code is generated for coping and pasting. 
 library(readxl)
 Survival_HeightApril26Blocks7_6Clean <- read_excel("Oak Project/Data/Survival_HeightApril26Blocks7&6Clean.xlsx", 
     sheet = "Input1", skip = 1)
@@ -24,7 +24,7 @@ names(Survival_HeightApril26Blocks7_6Clean)
 ```{r}
 Survival_HeightApril26Blocks7_6Clean <-
   Survival_HeightApril26Blocks7_6Clean %>% #assigned by use of <- but also needed to CALL it in order for R to understand where to rename. 
-  rename( Page_Num ="Page #", 
+ dplyr:: rename( Page_Num ="Page #", 
           Date = "MM/DD/YYYY",
           Recorder ="Name",
          Block ="#...4",
@@ -42,11 +42,95 @@ Survival_HeightApril26Blocks7_6Clean <-
 Survival_HeightApril26Blocks7_6Clean
 ```
 
-You can add options to executable code like this
+Things about this data that need to be cleaned up; Conversion of VALUES to NA & Split Tag \#
+
+Column Separation,
+
+We need rows for each planted acorn that did not germinate, this would create more NAs but summaries would make much more sense.
+
+To import and merge spreadsheets;
 
 ```{r}
-#| echo: false
-2 * 2
+install.packages("plyr") #contains the lapply function
+library("dplyr")
+library("plyr")
+library("readr")
+library("readxl")
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+oak_data <- list.files(path = "Oak Project/Data",
+                       pattern = "*6Clean.xlsx",
+                       full.names = TRUE) |> #asking all files that have a pattern, we are excluding OCT2025
+  lapply(read_excel,
+         na = "NA", sheet = "Input1") |> 
+  bind_rows()
+#Takes four seperate data sheets and staples them together in one datasheet, lines columns together
+#takes the excel sheet and applies it to all files 
+names(oak_data)
+```
+
+```{r}
+oak_data <-
+  oak_data |> 
+dplyr:: rename(Date = "Date Collected",
+                Tag_Num ="Tag #",
+               OA_Microclimate = "OA Microclimate",
+                Seedling_Ht_Cm ="Seedling Height",
+                Num_Leaves ="# of Leaves",
+                Num_Dead_Leaves ="# of dead leaves",
+                Leaf_Greenness ="% Leaf Greeness",
+                Num_Germinated ="# that germinated",)
+
+oak_data
+```
+
+```{r}
+view(oak_data)
+```
+
+```{r}
+oak_data_CLEAN <- oak_data |> 
+  separate ('Tag_Num', into = c("Tag_Num", "Acorn_Num"), sep = "A") |> 
+  mutate(Tag_Num = as.numeric(Tag_Num)) |> 
+  mutate(Acorn_Num = as.numeric(Acorn_Num)) |> 
+  
+  mutate(Leaf_Greenness = as.numeric(Leaf_Greenness),
+         Dead = case_when(
+           Seedling_Ht_Cm == 0 ~ "Dead",
+           Seedling_Ht_Cm > 0 ~ "Alive"
+         )) ##VALUES TO NA, case when = if then  
+#
+oak_data_CLEAN
+#Breaks up the original tag number oclumn into tag number and acorn nuber by seperating by A. 
+#mutate makes new columns, can change exisiting columns
+#This good, continue cleaning from this
+# ' = if column name has a space between, it keeps the words together 
+```
+
+```{r}
+oak_data_CLEAN |> 
+  select(Tag_Num, Acorn_Num) |> 
+  distinct() |> 
+  arrange(Tag_Num)
+
+Acorn_ID_Table <- oak_data_CLEAN |> 
+  select(Tag_Num, Block, Treatment, OA_Microclimate, Date) |> 
+  distinct() |> 
+  arrange(Tag_Num) |> 
+  mutate(Acorn1 = 1, Acorn2 = 2, Acorn3 = 3) |> 
+  pivot_longer(
+    cols  = c(Acorn1, Acorn2, Acorn3),
+    names_to = "whatever",
+    values_to = "Acorn_Num") |> 
+  select(-whatever)
+view(oak_data_CLEAN)
+```
+
+```{r}
+Acorn_ID_Table
+full_join(Acorn_ID_Table) #Full join looks for matching columns and then combines matching column. 
+
+#This is all a mess, ignore
+```
