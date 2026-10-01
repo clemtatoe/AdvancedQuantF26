@@ -8,7 +8,21 @@ editor: visual
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
+Oak Data Research Questions:
+
+Differences in germination rates between acorns between treatments?
+
+Are there differences in seedling growth rates between treatments (microhabitats)
+
+Which Microclimates had teh highest rate of natural recruits
+
+In which microclimates were the plants healthiest (e.g., highest leaf greeness)
+
 Oak Exploratory Data Analysis and Cleaning
+
+For each question;
+
+Which data can we use?
 
 ```{r}
 install.packages("tidyverse")
@@ -64,24 +78,32 @@ oak_data <- list.files(path = "Oak Project/Data",
                        pattern = "*6Clean.xlsx",
                        full.names = TRUE) |> #asking all files that have a pattern, we are excluding OCT2025
   lapply(read_excel,
-         na = "NA", sheet = "Input1") |> 
+         na = "NA", sheet = "Input1", skip = 1) |> 
   bind_rows()
 #Takes four seperate data sheets and staples them together in one datasheet, lines columns together
 #takes the excel sheet and applies it to all files 
 names(oak_data)
+unloadNamespace("plyr")
 ```
 
 ```{r}
 oak_data <-
   oak_data |> 
-dplyr:: rename(Date = "Date Collected",
-                Tag_Num ="Tag #",
-               OA_Microclimate = "OA Microclimate",
-                Seedling_Ht_Cm ="Seedling Height",
-                Num_Leaves ="# of Leaves",
-                Num_Dead_Leaves ="# of dead leaves",
-                Leaf_Greenness ="% Leaf Greeness",
-                Num_Germinated ="# that germinated",)
+dplyr:: rename(Page_Num ="Page #", 
+                       Date = "MM/DD/YYYY",
+                       Recorder ="Name",
+                       Block ="#...4",
+                       Tag_Num ="#...5",
+                       Oak_Type ="NR, S, or A",
+                       Treatment ="AC, OA, NP, DT, or DL",
+                       OA_microclimate ="TH, TI, CN",
+                       Seedling_Ht_Cm ="(cm)",
+                       Num_Leaves ="#...10",
+                       Num_Dead_Leaves ="#...11",
+                       Leaf_Greenness ="%",
+                       Num_Germinated ="#...13",
+                       RCD ="(mm)",
+                       Notes  ="as written on data sheet")
 
 oak_data
 ```
@@ -116,7 +138,7 @@ oak_data_CLEAN |>
   arrange(Tag_Num)
 
 Acorn_ID_Table <- oak_data_CLEAN |> 
-  select(Tag_Num, Block, Treatment, OA_Microclimate, Date) |> 
+  select(Tag_Num, Block, Treatment, OA_microclimate, Date) |> 
   distinct() |> 
   arrange(Tag_Num) |> 
   mutate(Acorn1 = 1, Acorn2 = 2, Acorn3 = 3) |> 
@@ -134,3 +156,52 @@ full_join(Acorn_ID_Table) #Full join looks for matching columns and then combine
 
 #This is all a mess, ignore
 ```
+
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r}
+
+ggplot(oak_data_CLEAN) +
+  aes(x = Seedling_Ht_Cm, 
+      y = Num_Leaves,
+      color = Leaf_Greenness,
+      shape = Oak_Type) +
+  geom_point()
+```
+
+```{r}
+ggplot(oak_data_CLEAN) +  
+  aes(x = Treatment, fill = Dead) + 
+  geom_bar()
+```
+
+```{r}
+ggplot(oak_data_CLEAN) +  
+  aes(x = Treatment, fill = Oak_Type) + 
+  geom_bar()
+```
+
+```{r}
+ggplot(oak_data_CLEAN) +  
+  aes(x = Treatment, fill = OA_microclimate) + 
+  geom_bar()
+```
+
+```{r}
+ggplot(oak_data_CLEAN) +  
+  aes(x = Treatment) + 
+  geom_bar()
+```
+
+Mine: Seedling Height and Seedling Greenness
+
+Focus on focal treatments
+
+Acorns vs. NR - analyze separately
+
+Acorns: at end, NR: overtime
+
+-X NAs
