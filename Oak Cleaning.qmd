@@ -196,7 +196,7 @@ ggplot(oak_data_CLEAN) +
   geom_bar()
 ```
 
-Mine: Seedling Height and Seedling Greenness
+Mine: Seedling Height and Seedling Greenness and RCD
 
 Focus on focal treatments
 
@@ -205,3 +205,7 @@ Acorns vs. NR - analyze separately
 Acorns: at end, NR: overtime
 
 -X NAs
+
+= Anova
+
+Clean Data By Tuesday
