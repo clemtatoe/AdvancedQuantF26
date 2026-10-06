@@ -150,12 +150,61 @@ Acorn_ID_Table <- oak_data_CLEAN |>
 view(oak_data_CLEAN)
 ```
 
-```{r}
-Acorn_ID_Table
-full_join(Acorn_ID_Table) #Full join looks for matching columns and then combines matching column. 
+Mine: Seedling Height and Seedling Greenness and RCD
 
-#This is all a mess, ignore
+Focus on focal treatments
+
+Acorns vs. NR - analyze separately
+
+Acorns: at end, NR: overtime
+
+-X NAs
+
+= Anova
+
+Ht = Anova
+
+Greenness; MAY be beta
+
+RCD: play by ear
+
+CONTINUED DATA CLEANING:
+
+```{r}
+#Need to isolate all the different treatments from everything else in the dataset.
+#The isolation of treatments are made into separate datasets for analysis. 
+#NAs need to be removed for both height & greenness.
+Height_Green_RCD <- oak_data_CLEAN |> 
+  filter(Treatment == "DT"|
+         Treatment == "AC"|
+         Treatment == "OA")
+# NA removal for height and greeness; The filter function is filtering for the seedling ht to be greater than 0, this helps to filter out the NAs. Look at the data itself will help to determine how to exactly filter out numerics. 
+#The mutate function works to make sure that leaf greenness is being read as a numeric.  
+Height_Green_RCD <- Height_Green_RCD |> 
+  filter(Seedling_Ht_Cm > 0) |> 
+  mutate(Leaf_Greenness = as.numeric(Leaf_Greenness))
+
+#Need to separate the natural recruits and acorns now into two separate, that making new datasets for both and filtering oak type. 
+
+Acorn_Data <- Height_Green_RCD |> 
+  filter(Oak_Type == "A")
+
+NR_Data <- Height_Green_RCD |> 
+  filter(Oak_Type == "NR" )
+
+#The acorn data has NAs for RCD & Greenness In order to remove those NAs, in this case we want to change the NAs into 0. In order to do that, the function mutate can be used to specifically change the NAs to 0 in specified columns
+
+Acorn_Clean <- Acorn_Data |> 
+  mutate(Leaf_Greenness = ifelse(is.na(Leaf_Greenness), 0, Leaf_Greenness),
+         RCD = ifelse(is.na(RCD), 0, RCD) )
+#There was no NAs present in the NR Data, so that data set is good. 
+
+#The data has now been "cleaned" and separated between acorns and NR. 
+
+#At this point, data is cleaned and it is time to explore with analysis. 
 ```
+
+Thursday: One graph per variable.
 
 ```{r}
 install.packages("ggplot2")
@@ -163,7 +212,7 @@ library(ggplot2)
 ```
 
 ```{r}
-
+#Time for Data Analysis Exploration to explore what type of distribution we may have;
 ggplot(oak_data_CLEAN) +
   aes(x = Seedling_Ht_Cm, 
       y = Num_Leaves,
@@ -209,3 +258,40 @@ Acorns: at end, NR: overtime
 = Anova
 
 Clean Data By Tuesday
+
+```{r}
+carmodel <- lm(mpg ~ wt + hp, data = mtcars)
+summary(carmodel)
+
+# no graphing
+```
+
+One Way Anova:
+
+```{r}
+
+oakmodel <- lm(Seedling_Ht_Cm ~ Treatment, data = oak_data_CLEAN)
+anova(oakmodel)
+
+oakmodel <- aov(Seedling_Ht_Cm ~ Treatment, data = oak_data_CLEAN)
+```
+
+```{r}
+# Post-hoc test
+TukeyHSD(irismodel)
+
+## Plotting comparisons using the ggsignif package
+https://cran.r-project.org/web/packages/ggsignif/vignettes/intro.html
+ggplot(iris, aes(x = Species, y = Sepal.Length)) +
+  geom_boxplot() + # using `ggsignif` to display comparison of interest
+  geom_signif(
+    comparisons = list(c("versicolor", "virginica")),
+    map_signif_level = TRUE
+  )
+```
+
+## Two Way ANOVA
+
+The two-way factorial design has TWO categorical predictor variables and ONE response, and you are interested in interactions between the two predictor variables.
+
+Example: How do temperature (hi, med, lo) and acidity (more acidic, more basic) affect algal photosynthesis rates?
