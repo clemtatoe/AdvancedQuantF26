@@ -229,7 +229,7 @@ ggplot(NR_Data) +
 ```{r}
 
 ggplot(Acorn_Clean) + 
-  aes(x = Seedling_Ht_Cm, y = RCD) + 
+  aes(x = RCD, y = Seedling_Ht_Cm) + 
   stat_boxplot()
 ```
 
@@ -257,9 +257,34 @@ ggplot(NR_Data) +
 ```
 
 ```{r}
-ggplot(oak_data_CLEAN) +  
-  aes(x = Treatment) + 
-  geom_bar()
+#This is data exploration of figuring out how to do a time series with the NR data
+qplot(x=Date, y=Seedling_Ht_Cm,
+      data=NR_Data, na.rm=TRUE,
+      main="Seedling Height Over Time of Natural Recruits",
+      xlab="Date", ylab="Seedling Height (cm)")
+
+ggplot(data = NR_Data, aes(x = Date, y = Seedling_Ht_Cm)) +
+  geom_line() +
+  labs(title = "Seedling Height over Time (NR)", x = "Date", y = "Seedling Height")
+
+ggplot(data = NR_Data, aes(x = Date, y = RCD)) +
+  geom_line() +
+  labs(title = "RCD over Time (NR)", x = "Date", y = "RCD")
+
+ggplot(data = NR_Data, aes(x = Date, y = Leaf_Greenness)) +
+  geom_line() +
+  labs(title = "Leaf Greenness over Time (NR)", x = "Date", y = "Leaf Greenness")
+
+ggplot(NR_Data, aes(x = Date, y = Seedling_Ht_Cm, color = Tag_Num, group = Tag_Num)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(title = "Seedling Ht for NR over Time",
+       x = "Date",
+       y = "Seedling Height",
+       color = "Tag") +
+  theme_minimal()
+
+#Try to facet wrap! to divide by treatment
 ```
 
 Mine: Seedling Height and Seedling Greenness and RCD
