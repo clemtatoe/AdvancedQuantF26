@@ -213,30 +213,47 @@ library(ggplot2)
 
 ```{r}
 #Time for Data Analysis Exploration to explore what type of distribution we may have;
-ggplot(oak_data_CLEAN) +
+ggplot(Acorn_Clean) +
   aes(x = Seedling_Ht_Cm, 
-      y = Num_Leaves,
-      color = Leaf_Greenness,
-      shape = Oak_Type) +
+      y = RCD,
+      color = Leaf_Greenness) +
+  geom_point()
+
+ggplot(NR_Data) +
+  aes(x = Seedling_Ht_Cm, 
+      y = RCD,
+      color = Leaf_Greenness) +
   geom_point()
 ```
 
 ```{r}
-ggplot(oak_data_CLEAN) +  
-  aes(x = Treatment, fill = Dead) + 
-  geom_bar()
+
+ggplot(Acorn_Clean) + 
+  aes(x = Seedling_Ht_Cm, y = RCD) + 
+  stat_boxplot()
 ```
 
 ```{r}
-ggplot(oak_data_CLEAN) +  
-  aes(x = Treatment, fill = Oak_Type) + 
-  geom_bar()
-```
+ggplot(Acorn_Clean) + 
+  aes(x = Seedling_Ht_Cm) +
+  geom_histogram()
+ggplot(NR_Data) + 
+  aes(x = Seedling_Ht_Cm) +
+  geom_histogram()
 
-```{r}
-ggplot(oak_data_CLEAN) +  
-  aes(x = Treatment, fill = OA_microclimate) + 
-  geom_bar()
+ggplot(Acorn_Clean) + 
+  aes(x = RCD) +
+  geom_histogram()
+ggplot(NR_Data) + 
+  aes(x = RCD) +
+  geom_histogram()
+
+ggplot(Acorn_Clean) + 
+  aes(x = Leaf_Greenness) +
+  geom_histogram()
+ggplot(NR_Data) + 
+  aes(x = Leaf_Greenness) +
+  geom_histogram()
 ```
 
 ```{r}
