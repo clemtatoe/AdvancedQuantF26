@@ -287,27 +287,6 @@ ggplot(NR_Data, aes(x = Date, y = Seedling_Ht_Cm, color = Tag_Num, group = Tag_N
 #Try to facet wrap! to divide by treatment
 ```
 
-Mine: Seedling Height and Seedling Greenness and RCD
-
-Focus on focal treatments
-
-Acorns vs. NR - analyze separately
-
-Acorns: at end, NR: overtime
-
--X NAs
-
-= Anova
-
-Clean Data By Tuesday
-
-```{r}
-carmodel <- lm(mpg ~ wt + hp, data = mtcars)
-summary(carmodel)
-
-# no graphing
-```
-
 One Way Anova:
 
 ```{r}
@@ -316,24 +295,22 @@ oakmodel <- lm(Seedling_Ht_Cm ~ Treatment, data = oak_data_CLEAN)
 anova(oakmodel)
 
 oakmodel <- aov(Seedling_Ht_Cm ~ Treatment, data = oak_data_CLEAN)
+
+```
+
+HEIGHT:
+
+```{r}
+acornmodel <- lm(Seedling_Ht_Cm ~ Treatment, data = Acorn_Clean)
+anova(acornmodel)
+
+acornmodel <- aov(Seedling_Ht_Cm ~ Treatment, data = Acorn_Clean)
+
 ```
 
 ```{r}
-# Post-hoc test
-TukeyHSD(irismodel)
+NRmodel <- lm(Seedling_Ht_Cm ~ Treatment, data = NR_Data)
+anova(NRmodel)
 
-## Plotting comparisons using the ggsignif package
-https://cran.r-project.org/web/packages/ggsignif/vignettes/intro.html
-ggplot(iris, aes(x = Species, y = Sepal.Length)) +
-  geom_boxplot() + # using `ggsignif` to display comparison of interest
-  geom_signif(
-    comparisons = list(c("versicolor", "virginica")),
-    map_signif_level = TRUE
-  )
+NRmodel <- aov(Seedling_Ht_Cm ~ Treatment, data = NR_Data)
 ```
-
-## Two Way ANOVA
-
-The two-way factorial design has TWO categorical predictor variables and ONE response, and you are interested in interactions between the two predictor variables.
-
-Example: How do temperature (hi, med, lo) and acidity (more acidic, more basic) affect algal photosynthesis rates?
