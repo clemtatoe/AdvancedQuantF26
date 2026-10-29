@@ -20,9 +20,9 @@ One of the most frequently collected type of data in ecology is on ecological co
 
 - Species richness
 
-- Relative abundance/percent cover of different species (evenness)
+- Relative abundance/percent cover of different species (evenness) \*\*
 
-  - Shannon Diversity, Simpson Diversity
+  - Shannon Diversity \*\* , Simpson Diversity
 
 - Proportion of native vs. non-native species
 
@@ -49,10 +49,10 @@ library(vegan)
 We might have information about a community in a single sample. This dataframe has a lot of information about the taxa present in the sample, as well as counts of each taxon.
 
 ```{r}
-Freshies <- read.csv(file = "Demo Data Files/Freshwater_Invertebrates.csv")
+Freshies <- read.csv(file = "Freshwater_Invertebrates.csv")
 
 glimpse(Freshies)
-load("Demo Data Files/S4E2e.RData")
+load("S4E2e.RData")
 ```
 
 You might instead have no abundance information at all, but have information about multiple samples. These data give vascular plant species names for samples from 10 sites from a survey in Shropshire, UK.
@@ -79,6 +79,8 @@ ps
 
 ps |> class()
 
+#transpose
+t(ps)
 ```
 
 In this format, species are on the columns, sites/samples are on the rows. In the cells, 0 means that species was not found in that sample, while 1 means it was present. This particular dataset does not have abundance information, only presence/absence.
@@ -98,6 +100,7 @@ Neat! That made it wide, but R is storing it as a data frame still. Depending on
 
 ```{r}
 plrich_matrix <- plrich_wide[2:ncol(plrich_wide)] |> 
+  #[] is how you select subsets of a matrix, the above code is saying only select the 2 columns. 
   as.matrix()
 
 rownames(plrich_matrix) <- plrich_wide$Species
@@ -111,7 +114,7 @@ To do it backwards:
 ps_long <- ps |> data.frame()
 
 colnames(ps_long) <- c("Species", "Site", "Present")
-
+#changes column names
 ps_long
 ```
 
@@ -127,27 +130,31 @@ Species richness barely needs a special function - its just a matter of using a 
 
 ```{r}
 Freshies |> nrow()
+#one row per species, so just count rows. 
 ```
 
 ```{r}
 ps |> colSums()
+
+#row sums/columns sums, adds each value for each column. (how many 1s in each site in this case. )
 ```
 
 ```{r}
 plrich |> 
   group_by(Site) |> 
   count()
+#counts how many rows per site
 ```
 
 ```{r}
 psa |> 
-  pivot_longer(names_to = "Site", values_to = "Abund", cols = 2:ncol(psa)) |> 
-  filter(Abund > 0) |> 
+  pivot_longer(names_to = "Site", values_to = "Abund", cols = 1:ncol(psa)) |> 
+  filter(Abund > 0) |> #filters abundance for sites more than 0, since 0 means it isnt there
   group_by(Site) |> 
   count()
-
+# both of these do the same thing, just calculated differently. 
 psa |> 
-  mutate_all(~ case_when(. > 0 ~ 1, . == 0 ~ 0)) |> 
+  mutate_all(~ case_when(. > 0 ~ 1, . == 0 ~ 0)) |> #if value is great than zero, make it a one, if == to 0, make it a 0,
   colSums()
 ```
 
@@ -163,7 +170,7 @@ Simpson's D is a diversity index that ranges from 0 to 1. The function to calcul
 
 ```{r}
 # the 
-inv_d <- diversity(Freshies$Count, index = "simpson")
+inv_d <- diversity(Freshies$Count, index = "simpson") #just gave it the count column
 
 inv_d
 ```
@@ -182,10 +189,13 @@ inv_shan
 
 What if we have many samples that we want to calculate, so we can compare? We can also give it a whole dataset in matrix format and it can figure out what to do. The MARGIN argument tells it whether to compute it with the columns or rows as the grouping factor.
 
+Margin = 1 says rows
+
+Margin = 2 says columns
+
 ```{r}
 diversity(psa, index = "shannon", MARGIN = 2)
 
-library(vegan)
 diversity(psa, index = "simpson", MARGIN = 2)
 
 ```
@@ -193,14 +203,22 @@ diversity(psa, index = "simpson", MARGIN = 2)
 Put it all in a dataframe
 
 ```{r}
-shan_div <- diversity(psa, index = "shannon", MARGIN = 2)
+shan_div <- diversity(psa, index = "shannon", MARGIN = 2) #puts them all on vectors
 simp_div <- diversity(psa, index = "simpson", MARGIN = 2)
 sprich <- ps |> colSums()
 
-vec <- colnames(ps)
+vec <- colnames(ps) #vector of column names, ps is the sites. 
 
 bind_cols(vec,shan_div, simp_div,sprich) |> 
   rename(Site = `...1`, Shannon = `...2`, Simpson = `...3`, SpRich = `...4`) |>   separate(Site, into = c("Null","site", "UpperLower", "Rep"), sep = "")
+
+#or...
+
+tibble(vec,shan_div, simp_div,sprich) |> 
+  separate(vec, into = c("Null","site", "UpperLower", "Rep"), sep = "")
+
+#these are doing the same thing, tibble is just the simpiler way. 
+  
 ```
 
 ## Similarity Indices
@@ -211,7 +229,7 @@ Similarity indices quantify how much overlap or difference there is in community
 
 ### Presence/Absence Community Similarity
 
-This data set measured a unique measure of community - the fruits that make up the diet of three species of fruivorous birds called hornbills (GH, WH and OPH). Do these hornbills all eat different fruits, to avoid competition? Or do they have a lot of overlap and are all dietary generalists?
+This data set measured a unique measure of community - the fruits that make up the diet of three species of frugivorous birds called hornbills (GH, WH and OPH). Do these hornbills all eat different fruits, to avoid competition? Or do they have a lot of overlap and are all dietary generalists?
 
 ![](images/oriental-pied-hornbill-140518-116eos1d-fy1x7003.jpg.webp){width="300"}
 
@@ -242,6 +260,8 @@ A similarity of 1 would be perfect overlap, and similarity of 0 would mean nothi
 
 #Second way to calculate it, same output, just using Base R function instead of the vegan one.
 1 - dist(fruit, method = "binary")
+
+#creates a distance matrix. higher value says more similar samples, lower says dissimilar. 
 
 ```
 
@@ -283,21 +303,21 @@ What are our predictions for which communities might be most similar?
 
 ```{r}
 ps
-ps.jac <- dist(t(ps), method = "binary")
+ps.jac <- dist(t(ps), method = "binary") #species on columns for distrance method
 ps.jac
 ```
 
 That's a lot more difficult to interpret than the one with only three values! It'll be easier with a visual. This particular kind of plot is easier to make with Base R commands instead of GGplot.
 
 ```{r}
-ps.hc <- hclust(ps.jac)
+ps.hc <- hclust(ps.jac) #clusters based on similarity
 
 plot(ps.hc)
 ```
 
 Which of our hypotheses above were correct?
 
-- The
+- Sites matter the most
 
 ### Abundance
 
@@ -333,7 +353,7 @@ antfire <- t(ants) # transpose switches it so it works with our distance functio
 Euclidean distance is the most akin to the parametric tests that we've been running this quarter - The Euclidean distance d of two data cases (x~1~, x~2~) is defined as the square root of the sum of squared differences. This is mathematically intuitive and good for graphing, but a little difficult to compare since the scale will vary so much.
 
 ```{r}
-dist(antfire, method = "euclidean")
+dist(antfire, method = "euclidean") #distance matrix, euclidean distance
 ```
 
 #### Bray-Curtis/Sørenson
