@@ -21,21 +21,21 @@ An annotated, searchable guide to commonly used functions in R - let's add to th
 
 ## New Chunk
 
-- Mac: Command + Alt + I
+-   Mac: Command + Alt + I
 
-- PC: Ctrl + Alt + I
+-   PC: Ctrl + Alt + I
 
 ## New pipe \|\> or \|\>
 
-- Mac: Command + Shift + M
+-   Mac: Command + Shift + M
 
-- PC: Ctrl + Shift + M
+-   PC: Ctrl + Shift + M
 
 # Installing and loading packages
 
-- `install.packages()` buys the book from the bookstore.
+-   `install.packages()` buys the book from the bookstore.
 
-- `library()` takes it off the shelf for you to use.
+-   `library()` takes it off the shelf for you to use.
 
 ```{r}
 # install.packages(tidyverse)
@@ -840,12 +840,12 @@ iris_table |> knitr::kable()
 
 ### Export tables to Word:
 
-- Create a table or data.frame in R.
-- Write this table to a comma-separated .txt file using write.table().
-- Copy and paste the content of the .txt file into Word.
-- In Word, select the text you just pasted from the .txt file
-- go to Table → Convert → Convert Text to Table…
-- make sure “Commas” is selected under “Separate text at”, click OK
+-   Create a table or data.frame in R.
+-   Write this table to a comma-separated .txt file using write.table().
+-   Copy and paste the content of the .txt file into Word.
+-   In Word, select the text you just pasted from the .txt file
+-   go to Table → Convert → Convert Text to Table…
+-   make sure “Commas” is selected under “Separate text at”, click OK
 
 ```{r}
 # Export table
